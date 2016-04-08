@@ -26,11 +26,7 @@ b. Run the regressions
     ```
     Interpret each regression. How are they similar or different in their 
     slopes?
-      In general, sprinters' times will decrease as each year goes by and the first regression suggests that women's times        will be increasing over time. When considering the interaction between year and women, the directions remain the same
-      for 'year' and 'women' but the interaction year*women variable is negative. When the data is filtered to include only
-      women, however, the relationship between sprinters' times and year is more negative than when the data is filtered
-      to include only men - suggesting that women's times will actually decrease over time at a faster rate than mens'
-      times.
+      In general, I believe sprinters' times will decrease for each increase in year, by 0.012 seconds, and the first regression suggests that women's times will be increasing with ech year, by 1.04 seconds. When considering the interaction between year and women, the directions remain the same for 'year' and 'women' but the slope changes dramatically for women - with each spint times increasing by 11 seconds with each year. However, the interaction year*women variable is negative. When the data is filtered to include only women, the slope of sprinters' times with each increase in year is more negative (-0.01584) than when the data is filtered to include only men (-0.01068) - suggesting that women's times will actually decrease over time at a faster rate than mens' times.
 
 c. Plot the results of these regressions.
     ``` {r}
