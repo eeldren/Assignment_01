@@ -1,0 +1,38 @@
+## Problem 3: Predicting sprint times
+
+```{r}
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+```
+## Problem 3: Predicting sprint times
+
+Loading the data into R
+```{r}
+sprinters <- read.csv("sprinters.csv")
+```
+
+a. The referenced paper only used data from the Olympics 2004 and before. Create a new dataset named `sprinters_orig` with only those observations.
+    ```{r}
+    sprinters_orig <- subset(sprinters, year < 2005)
+    ```
+
+b. Run the regressions
+    ```{r}
+    lm(time ~ year + women, data = sprinters_orig)
+    lm(time ~ year * women, data = sprinters_orig)
+    lm(time ~ year, data = filter(sprinters_orig, women == 1))
+    lm(time ~ year, data = filter(sprinters_orig, women == 0))
+    ```
+    Interpret each regression. How are they similar or different in their 
+    slopes?
+      In general, sprinters' times will decrease as each year goes by and the first regression suggests that women's times        will be increasing over time. When considering the interaction between year and women, the directions remain the same
+      for 'year' and 'women' but the interaction year*women variable is negative. When the data is filtered to include only
+      women, however, the relationship between sprinters' times and year is more negative than when the data is filtered
+      to include only men - suggesting that women's times will actually decrease over time at a faster rate than mens'
+      times.
+
+c. Plot the results of these regressions.
+    ``` {r}
+    ggplot(sprinters_orig,
+    ```
