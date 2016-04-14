@@ -230,7 +230,7 @@ anscombe2 %>%
 
 lin_regs <- anscombe2 %>%
   group_by(dataset) %>%
-  do(lin_reg = lm(x ~ y, data = anscombe2))
+  do(tidy(lm(x ~ y, data = anscombe2)))
 ```
 
 *Based on the descriptive data and linear regressions, I would expect that the datasets could look very similar. To be completely fair, though, I've done this exercise with the Anscombe data before so I already know what it will approximately look like.*
@@ -284,7 +284,7 @@ mod4 <- lm(time ~ year, data = filter(sprinters_orig, women == 0))
 
 Interpret each regression. How are they similar or different in their slopes? Plot each of these using the **texreg** package.
     
-      In general, I believe sprinters' times will decrease for each increase in year, by 0.012 seconds, and the first regression suggests that women's times will be increasing with ech year, by 1.04 seconds. When considering the interaction between year and women, the directions remain the same for 'year' and 'women' but the slope changes dramatically for women - with each spint times increasing by 11 seconds with each year. However, the interaction year*women variable is negative. When the data is filtered to include only women, the slope of sprinters' times with each increase in year is more negative (-0.01584) than when the data is filtered to include only men (-0.01068) - suggesting that women's times will actually decrease over time at a faster rate than mens' times.
+*In general, I believe sprinters' times will decrease for each increase in year, by 0.012 seconds, and the first regression  suggests that women's times will be increasing with ech year, by 1.04 seconds. When considering the interaction between year and women, the directions remain the same for 'year' and 'women' but the slope changes dramatically for women - with each sprint times increasing by 11 seconds with each year. However, the interaction yearxwomen variable is negative. When the data is filtered to include only women, the slope of sprinters' times with each increase in year is more negative (-0.01584) than when the data is filtered to include only men (-0.01068) - suggesting that women's times will actually decrease over time at a faster rate than mens' times.*
       
 ```{r}
 library(texreg)
@@ -326,10 +326,45 @@ d. Use the function `predict` to predict the times of men and women in the 2156 
 
 ```{r}
 new_sprinters_orig <- data.frame(year = 2156)
-predict(mod3, data = new_sprinters_orig)
+
+predict(mod3, new_sprinters_orig, interval = "predict")
+predict(mod4, new_sprinters_orig, interval = "predict")
 ```
 
+*According to the results from the 'predict' function, current trends suggest that by 2156 the women's 100-meter sprint will have a faster time - 8.078 seconds - than the men's 100-meter sprint, at 8.098 seconds. I don't believe this is especially plausible because of biological constraints on how fast humans are able to run; I doubt the relationship between speed and time is linear.*
+
 e. Calculate the square root of the mean of the squared residuals (root mean squared error or RMSE) for the regression `time ~ year * women`.
+
+```{r}
+rmse <- function(error)
+{
+    sqrt(mean(error^2))
+}
+
+rmse(mod2$residuals)
+```
+
    Predict the values for the years after 2004 for both Olympics and World Championships. What are the root mean squared residuals for these predictions?
-   Is it surprising that the RMSE for the predictions out of
-   the sample are lower than those in the sample? 
+   
+```{r}
+sprinters2 <-
+  filter(sprinters,
+         year <= 2004)
+
+mod5 <- lm(time ~ year, data = filter(sprinters2, women == 1))
+mod6 <- lm(time ~ year, data = filter(sprinters2, women == 0))
+
+new_sprinters2 <- data.frame(year = c(2005, 2007, 2008, 2009, 2011, 2012, 2013, 2015))
+
+predict(mod5, new_sprinters2, interval = "predict")
+predict(mod6, new_sprinters2, interval = "predict")
+
+rmse(mod5$residuals)
+rmse(mod6$residuals)
+```
+
+*The RMSE for womens times after 2004 for both Olympics and World Championships is 0.1702, while the RMSE for mens times after 2004 for both Olympics and World Championships is 0.1207.*
+
+Is it surprising that the RMSE for the predictions out of the sample are lower than those in the sample?
+  
+*The out-of-sample RMSE for the first part of 3e is lower than the RMSE value for womens' post-2004 predictions, while it is higher than the RMSE value for mens' post-2004 predictions. It is surprising that an out-of-sample RMSE would be lower than an in-sample RMSE, because an in-sample one is more likely to be over-fitted and therefore have a smaller RMSE.*
