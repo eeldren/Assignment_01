@@ -68,11 +68,26 @@ dem_summary_stats <- democracy_long %>%
 dem_summary_stats <- dem_summary_stats[,c("variable", "mean", "sd", "min", "max")]
 ```
   
-    Print this table using the function `kable` in the **knitr** package, an the code chunk option `results='asis`. See the [R Markdown Help](http://rmarkdown.rstudio.com/authoring_rcodechunks.html).
+Print this table using the function `kable` in the **knitr** package, an the code chunk option `results='asis`. See the [R Markdown Help](http://rmarkdown.rstudio.com/authoring_rcodechunks.html).
 
 ```{r, results='asis'}
 knitr::kable(dem_summary_stats)
 ```
+
+|variable |         mean|           sd|    min|      max|
+|:--------|------------:|------------:|------:|--------:|
+|BRITCOL  |    0.2433349|    0.4291476|   0.00|     1.00|
+|CATH     |   37.1991275|   38.2807940|   0.00|    99.00|
+|CIVLIB   |    4.0762818|    1.9732405|   1.00|     7.00|
+|EDT      |    4.8533925|    3.1173053|   0.03|    12.81|
+|ELF60    |    0.3994587|    0.2965374|   0.00|     0.93|
+|GDPW     | 8876.9592826| 8016.9287248| 480.00| 37903.00|
+|MOSLEM   |   19.7358943|   34.0430019|   0.00|    99.90|
+|NEWC     |    0.4561318|    0.4981322|   0.00|     1.00|
+|OIL      |    0.1000969|    0.3001656|   0.00|     1.00|
+|POLLIB   |    3.8595248|    2.2326768|   1.00|     7.00|
+|REG      |    0.3986912|    0.4896883|   0.00|     1.00|
+|STRA     |    0.3751818|    0.6979135|   0.00|     5.00|
 
 d. Create a histogram for political liberties in which each unique
 value of the variable is in its own bin.
