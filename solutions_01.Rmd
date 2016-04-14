@@ -51,7 +51,7 @@ When you run this, you will notice that `POLLIB` and `CIVLIB`, which should be i
 
 b. Create a data frame with statistics (minimum, mean, sd, and maximum) for all variables but COUNTRY, CTYNAME, REGION, and YEAR. Instead of doing this with `summary`, use **dplyr** and **tidyr** as shown in [this](https://uw-pols501.github.io/pols_501_wi16/lessons/gapminder_intro_to_dplyr_tidyr.html#plotting) example. 
 
-```r
+```{r}
 democracy_long <- gather(democracy, variable, value, BRITCOL:STRA)
 
 dem_summary_stats <- democracy_long %>%
@@ -93,32 +93,109 @@ democracy %>%
   ggplot(aes(log(GDPW))) + geom_histogram(breaks = seq(6, 11, by=0.25))
 ```
 
-The histogram for log(GDP) is different from the histogram for GDP due to the differeing distributions; when GDP is logged, its distribution is more normal than the very right-skewed non-logged GDP histogram.
+*The histogram for log(GDP) is different from the histogram for GDP due to the differeing distributions; when GDP is logged, its distribution is more normal than the very right-skewed non-logged GDP histogram.*
 
-g. Plot political liberties against GDP per capita. If you use 
-   a scatterplot, there will be overlap. Figure out a way to plot
-   these two variables so that the pattern (if any) between them is 
-   clear. There could be multiple ways to do this, and not necessarily a scatterplot.
+g. Plot political liberties against GDP per capita. If you use a scatterplot, there will be overlap. Figure out a way to plot these two variables so that the pattern (if any) between them is clear. There could be multiple ways to do this, and not necessarily a scatterplot.
+```{r}
+democracy %>%
+  ggplot(aes(x=GDPW, y=POLLIB)) + geom_point(shape=1, position = position_jitter(width=1, height=0.6))
+```
 
-i. Plot political liberties against **log** GDP per
-   capita, using the same method as the previous question.  How is the relationship different than  when GDP per capita was not logged?
+i. Plot political liberties against **log** GDP per capita, using the same method as the previous question.  How is the relationship different than  when GDP per capita was not logged?
+```{r}
+democracy %>%
+  ggplot(aes(x=log(GDPW), y=POLLIB)) + geom_point(shape=1, position = position_jitter(width=1, height=0.6))
+```
+
+*The relationship when GDP per capita is logged has a different relationship to political liberties than when GDP per capita is not logged. Notably, the relationship appears more linear, which makes sense given that log(GDP) has a more normal distribution.*
 
 j. Create a boxplot of GDP per capita for oil producing and non-oil producing nations. Use **ggplot2**. This should be one plot, not two separate plots.
 
+```{r}
+democracy$OIL <- as.factor(democracy$OIL)
+democracy %>%
+  ggplot(aes(x=OIL, y=GDPW, fill=OIL)) + geom_boxplot()
+```
+
 k. Calculate the mean GDP per capita in countries with at least 40 percent Catholics. How does it compare to mean GDP per capita for all countries? Remember to check the units of Catholic.
+```{r}
+dem_gdp_cath <- subset(democracy, CATH >= 40)
+dem_gdp_cath_long <- gather(dem_gdp_cath, variable, value, BRITCOL:STRA)
+
+gdp_cath_stats <- dem_gdp_cath %>%
+  summarize(mean = mean(GDPW))
+```
+
+*The mean GDP per capita in countries with at least 40 percent Catholics is $10,295.13, compared to a mean GDP per capita of $8876.96 in all countries.*
 
 l. Calculate the average GDP per capita in countries with greater than
    60% ethnolinguistic fractionalization, less than 60%, and missing
    ethnolinguistic fractionalization.  Hint: you can calculate this
    with the **dplyr** verbs: `mutate`, `group_by` and `summarize`.
+   
+```{r}
+dem_gdp_elf <- democracy %>%
+  mutate(elf_cat = cut(ELF60, breaks = seq(0, 1.2, by = 0.6))) %>%
+  group_by(elf_cat) %>%
+  summarize(mean_GDP = mean(GDPW))
+```
 
-m. For all years, calculate the median of the country average years of education all countries? Return this as a data-frame. Hint: use **dplyr** functions: `group_by`, `filter`, `summarize`. Plot the median of the years of education for all years using a line. Also show the original data.
+m. For all years, calculate the median average years of education. Return this as a data-frame. Hint: use **dplyr** functions: `group_by`, `filter`, `summarize`. Plot the median of the years of education for all years using a line. Also show the original data.
 
-o. Repeat the previous question but group by both year and democracy. Plot separate lines for democracies and non-democries and the original data. Use color to differentiate democracies and non-democracies.
+```{r}
+dem_edu_stats <- democracy %>%
+  group_by(YEAR) %>%
+  filter(!is.na(EDT)) %>%
+  summarize(median_EDT = median(EDT))
 
-n. Which country was (or countries were) closest to the median years of education in 1985 among all countries? Hint: use **dplyr** functions: `filter`, `mutate`, `arrange`, and `slice`. 
+dem_edu_nona <- democracy %>%
+  filter(!is.na(EDT))
+
+dem_edu_stats %>%
+  ggplot(aes(x = YEAR, y = median_EDT)) + geom_line(size = 2) + 
+  geom_point(data = dem_edu_nona, aes(x = YEAR, y = EDT))
+```
+
+o. Repeat the previous question but group by both year and democracy. Plot separate lines for democracies and non-democracies and the original data. Use color to differentiate democracies and non-democracies.
+
+```{r}
+dem_edu_reg_stats <- democracy %>%
+  group_by(YEAR, REG) %>%
+  filter(!is.na(EDT)) %>%
+  summarize(median_EDT = median(EDT))
+```
+```{r scatterplot, fig.width = 8, fig.height = 6}
+dem_edu_reg_stats %>%
+  ggplot(aes(x = YEAR, y = median_EDT, color = factor(REG))) + geom_line(aes(group=factor(REG)), size = 2) + 
+  geom_point(data = dem_edu_nona, aes(x = YEAR, y = EDT)) +
+  scale_color_manual(values = c("coral1", "turquoise3"),
+                     labels = c("Not Democracy",
+                                "Democracy"))
+```
+
+n. Which country was (or countries were) closest to the median years of education in 1985 among all countries? Hint: use **dplyr** functions: `filter`, `mutate`, `arrange`, and `slice`.
+
+```{r}
+dem_edu_med1985 <- democracy %>%
+  filter(!is.na(EDT) & YEAR == 1985) %>%
+  arrange(EDT) %>%
+  slice(57)
+```
+
+*Venezuela was the country closest to the median years of education in 1985, as median years of education for all countries in 1985 was 5.625, and the number of years of education for Venezuela in 1985 was also 5.625.*
 
 q. What were the 25th and 75th percentiles of ethnolinguistic fractionalization for new and old countries? Return this as a data frame with columns `NEWC`, `ELF60_p25`, and `ELF60_p75`. Print it as a nicely formatted table with `kable`.
+
+```{r}
+dem_elf_newc <- democracy %>%
+  group_by(NEWC) %>%
+  summarize(`ELF60_p25` = quantile(ELF60, probs = 0.25, na.rm = TRUE),
+            `ELF60_p75` = quantile(ELF60, probs = 0.75, na.rm = TRUE))
+```
+
+```{r, results='asis'}
+knitr::kable(dem_elf_newc)
+```
 
 ### Problem 2: Plotting data and regressions
 
@@ -168,18 +245,18 @@ sprinters <- read.csv("sprinters.csv")
 
 a. The referenced paper only used data from the Olympics 2004 and before. Create a new dataset named `sprinters_orig` with only those observations.
 
-    ```{r}
-    sprinters_orig <- subset(sprinters, year < 2005 & olympics == 1)
-    ```
+```{r}
+  sprinters_orig <- subset(sprinters, year < 2005 & olympics == 1)
+```
 
 b. Run the regressions
 
-    ```{r}
-    lm(time ~ year + women, data = sprinters_orig)
-    lm(time ~ year * women, data = sprinters_orig)
-    lm(time ~ year, data = filter(sprinters_orig, women == 1))
-    lm(time ~ year, data = filter(sprinters_orig, women == 0))
-    ```
+```{r}
+  lm(time ~ year + women, data = sprinters_orig)
+  lm(time ~ year * women, data = sprinters_orig)
+  lm(time ~ year, data = filter(sprinters_orig, women == 1))
+  lm(time ~ year, data = filter(sprinters_orig, women == 0))
+```
 
     Interpret each regression. How are they similar or different in their 
     slopes? Plot each of these using the **texreg** package.
